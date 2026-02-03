@@ -28,7 +28,7 @@ This repository implements two variants of LSTMs to predict cyclone trajectories
 ---
 
 ### Stochastic LSTM
-Treats the LSTM weights as distributions but optimizes primarily for point-estimate accuracy. It utilizes the "stochastic" nature by keeping the model in `.train()` mode during inference to sample from the weight distributions 50 times and average the results.
+Uses Monte Carlo (MC) sampling at inference to estimate uncertainty, but lacks a training constraint (like KL Divergence), allowing weights to overfit. It runs 50 forward passes with different weight realizations and averaging the results to generate a prediction.
 
 ### Bayes LSTM
 
