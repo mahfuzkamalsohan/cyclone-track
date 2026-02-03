@@ -14,8 +14,9 @@ This repository implements two variants of LSTMs to predict cyclone trajectories
 | Bayesian LSTM | 0.6948° | 0.9129° |
 
 
-![slstm](results/slstm.png) 
+![slstm](results/slstm.png)
 ![blstm](results/blstm.png) 
+
 
 ## Model Comparisons
 
