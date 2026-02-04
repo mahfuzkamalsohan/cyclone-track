@@ -3,12 +3,11 @@
 This repository implements two variants of LSTMs to predict cyclone trajectories (Latitude/Longitude) using the IBTrACS dataset.
 
 
-
 ## Results
 
 | Model | Train RMSE (Normalized)| Test RMSE (Normalized) | Train RMSE (Degrees) | Test RMSE (Degrees) |
 | :--- | :--- | :--- | :--- | :--- |
-| Stochastic LSTM | 0.1150° | 0.2246° |
+| Stochastic LSTM | 0.0057 | 0.0097 | 0.1435°| 0.2482° |
 | Bayesian LSTM |0.0301 | 0.0373| 0.7370° | 0.9117° |
 
 
@@ -35,5 +34,5 @@ In addition to stochastic sampling, it includes a **KL Divergence** term in the 
 
 ### Conclusion
 
-Although the Stochastic LSTM shows lower RMSE, it suffers from significant overfitting with a **95% error jump (0.11° to 0.22°)** between training and testing. The Bayesian LSTM achieves stable generalization and a tight error gap of only **31% (0.69° to 0.91°)** due to its variational inference framework, which incorporates KL divergence as a regularization term to penalize the complexity of the weight distributions.
 
+The Stochastic LSTM is the superior model, delivering a 72.8% reduction in error compared to the Bayesian LSTM. While its test error is roughly double its training error, the absolute magnitude (0.2482°) remains remarkably low, suggesting high precision rather than problematic overfitting. The Bayesian LSTM is more conservative and generalizes more consistently between sets, but its significantly higher error makes it less ideal for applications requiring sub-degree accuracy.
