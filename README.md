@@ -6,12 +6,10 @@ This repository implements two variants of LSTMs to predict cyclone trajectories
 
 ## Results
 
-
-
-| Model | Train RMSE | Test RMSE |
-| :--- | :--- | :--- |
+| Model | Train RMSE (Normalized)| Test RMSE (Normalized) | Train RMSE (Degrees) | Test RMSE (Degrees) |
+| :--- | :--- | :--- | :--- | :--- |
 | Stochastic LSTM | 0.1150° | 0.2246° |
-| Bayesian LSTM | 0.6948° | 0.9129° |
+| Bayesian LSTM |0.0301 | 0.0373| 0.7370° | 0.9117° |
 
 
 ![slstm](results/slstm.png)

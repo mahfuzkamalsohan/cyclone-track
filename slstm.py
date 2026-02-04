@@ -119,21 +119,30 @@ for epoch in tqdm(range(100), desc="Training"):
 model.train() # Enable stochastic sampling
 print("\nEvaluating Model...")
 with torch.no_grad():
-    # Helper to get RMSE for a dataset
     def get_rmse(X_data, y_data):
         # 50 samples per prediction for stochastic mean
         preds = torch.stack([model(X_data.to(device)) for _ in range(50)]).mean(0).cpu().numpy()
-        real = t_scaler.inverse_transform(pd.DataFrame(y_data.numpy(), columns=target_cols))
+        y_true_norm = y_data.numpy()
+        
+        # Calculate Normalized RMSE
+        norm_rmse = np.sqrt(np.mean((preds - y_true_norm)**2))
+        
+        # Calculate Denormalized RMSE (Degrees)
+        real = t_scaler.inverse_transform(pd.DataFrame(y_true_norm, columns=target_cols))
         pred_real = t_scaler.inverse_transform(pd.DataFrame(preds, columns=target_cols))
-        return np.sqrt(np.mean((pred_real - real)**2)), pred_real, real
+        denorm_rmse = np.sqrt(np.mean((pred_real - real)**2))
+        
+        return denorm_rmse, pred_real, real, norm_rmse
 
-    train_rmse, _, _ = get_rmse(X[:split], y[:split])
-    test_rmse, p_real, y_real = get_rmse(X[split:], y[split:])
+    train_rmse, _, _, train_norm_rmse = get_rmse(X[:split], y[:split])
+    test_rmse, p_real, y_real, test_norm_rmse = get_rmse(X[split:], y[split:])
 
-    print("-" * 30)
-    print(f"Train RMSE: {train_rmse:.4f} degrees")
-    print(f"Test RMSE:  {test_rmse:.4f} degrees")
-    print("-" * 30)
+    print("-" * 35)
+    print(f"Train RMSE (Normalized): {train_norm_rmse:.4f}")
+    print(f"Train RMSE (Degrees):    {train_rmse:.4f}°")
+    print(f"Test RMSE (Normalized):  {test_norm_rmse:.4f}")
+    print(f"Test RMSE (Degrees):     {test_rmse:.4f}°")
+    print("-" * 35)
 
 # --- CARTOPY TRAJECTORY VALIDATION ---
 fig = plt.figure(figsize=(12, 8))

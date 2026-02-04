@@ -111,8 +111,6 @@ model = BayesLSTM(X.shape[2], 128, 2).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.005, weight_decay=1e-5)
 criterion = nn.MSELoss()
 
-
-
 print("Starting Training...")
 for epoch in tqdm(range(100), desc="Training"):
     model.train()
@@ -144,18 +142,28 @@ with torch.no_grad():
             samples = torch.stack([model(bx.to(device)) for _ in range(50)])
             all_preds.append(samples.mean(0).cpu())
         preds_concat = torch.cat(all_preds).numpy()
-        real = t_scaler.inverse_transform(pd.DataFrame(y_tensor.numpy(), columns=target_cols))
+        y_true_norm = y_tensor.numpy()
+        
+        # Calculate Normalized RMSE
+        norm_rmse = np.sqrt(np.mean((preds_concat - y_true_norm)**2))
+        
+        # Denormalize for Actual Degrees
+        real = t_scaler.inverse_transform(pd.DataFrame(y_true_norm, columns=target_cols))
         pred_real = t_scaler.inverse_transform(pd.DataFrame(preds_concat, columns=target_cols))
-        return np.sqrt(np.mean((pred_real - real)**2)), pred_real, real
+        denorm_rmse = np.sqrt(np.mean((pred_real - real)**2))
+        
+        return denorm_rmse, pred_real, real, norm_rmse
 
-    train_rmse, _, _ = get_rmse_batched(X[:split], y[:split])
-    test_rmse, p_real, y_real = get_rmse_batched(X[split:], y[split:])
+    train_rmse, _, _, train_norm_rmse = get_rmse_batched(X[:split], y[:split])
+    test_rmse, p_real, y_real, test_norm_rmse = get_rmse_batched(X[split:], y[split:])
 
     print(f"\nprior_var = {prior_var}")
     print(f"kl_weight = {kl_weight}")
     print("-" * 35)
-    print(f"Train RMSE: {train_rmse:.4f} degrees")
-    print(f"Test RMSE:  {test_rmse:.4f} degrees")
+    print(f"Train RMSE (Normalized): {train_norm_rmse:.4f}")
+    print(f"Train RMSE (Degrees):    {train_rmse:.4f}°")
+    print(f"Test RMSE (Normalized):  {test_norm_rmse:.4f}")
+    print(f"Test RMSE (Degrees):     {test_rmse:.4f}°")
     print("-" * 35)
 
 # --- CARTOPY TRAJECTORY VALIDATION ---
